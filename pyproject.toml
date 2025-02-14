@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "epub-converter"
+version = "0.1.0"
+description = "HTML to EPUB converter service"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+trafilatura = "^1.6.1"
+requests = "^2.31.0"
+beautifulsoup4 = "^4.12.2"
+pydantic-settings = "^2.7.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+black = "^23.12.1"
+isort = "^5.13.2"
+flake8 = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3 

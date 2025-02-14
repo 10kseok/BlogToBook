@@ -42,7 +42,7 @@ class EPUBConverter:
                     img['src'] = base64_data
         return str(soup)
 
-    def _convert_to_epub(self, html_content: str, output_path: str) -> bool:
+    def _convert_to_epub(self, html_content: str, output_path: str, title: str) -> bool:
         with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as temp_html:
             temp_html.write(html_content)
             temp_html_path = temp_html.name
@@ -56,6 +56,7 @@ class EPUBConverter:
                 '--input-encoding', 'utf-8',
                 '--epub-version', '2',
                 '--pretty-print',
+                '--title', title,
             ]
             
             result = subprocess.run(cmd, capture_output=True, text=True)
@@ -71,26 +72,32 @@ class EPUBConverter:
         finally:
             os.unlink(temp_html_path)
 
-    async def convert_url_to_epub(self, url: str) -> str:
-        # Download and extract content
+    async def extract_useful_content(self, url: str) -> str:
+        # TODO: 특정 URL에서 output_format을 html으로 하면 추출 실패함
+        # ex) https://10kseok.github.io/posts/gradual-improvement-with-bubble-sort/
         downloaded = tf.fetch_url(url)
         html_content = tf.extract(
             downloaded,
-            output_format="html",
+            # output_format="html",
             include_images=True,
             include_formatting=True,
             favor_precision=True
         ).replace("graphic", "img")
-
-        # Convert images to base64
+        
+        # base64로 변환하면 epub으로 변환할 때 따로 이미지를 다운로드하지 않아도 됨
         html_with_base64 = self._convert_images_to_base64(html_content, url)
+        
+        return html_with_base64
+    
+    async def convert_urls_to_epub(self, urls: list[str], title: str) -> str:
+        contents = "\n".join([await self.extract_useful_content(u) for u in urls])
 
         # Generate output path
-        output_filename = f"{hash(url)}.epub"
+        output_filename = f"{title}.epub"
         output_path = os.path.join(self.output_dir, output_filename)
 
         # Convert to EPUB
-        success = self._convert_to_epub(html_with_base64, output_path)
+        success = self._convert_to_epub(contents, output_path, title)
         
         if success:
             return output_path

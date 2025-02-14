@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog to Book</title>
+  <!-- Bulma CSS CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .link-input {
+      display: flex;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Blog To Book</h1>
+    <form id="linkForm">
+      <div class="field">
+        <label class="label">Book Title</label>
+        <div class="control">
+          <input type="text" class="input" name="bookTitle" placeholder="Enter book title" required>
+        </div>
+      </div>
+      <div id="linkInputs">
+        <label class="label">Blog links (sources)</label>
+        <div class="link-input field has-addons">
+          <div class="control is-expanded">
+            <input type="url" class="input" name="links" placeholder="Enter link" required>
+          </div>
+          <div class="control">
+            <button type="button" class="button is-danger" onclick="removeInput(this)">Remove</button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <button type="button" class="button is-primary" onclick="addInput()">Add Link</button>
+        <button type="submit" class="button is-success">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function addInput() {
+      const linkInputs = document.getElementById('linkInputs');
+      const newInput = document.createElement('div');
+      newInput.className = 'link-input field has-addons';
+      newInput.innerHTML = `
+        <div class="control is-expanded">
+          <input type="url" class="input" name="links" placeholder="Enter link" required>
+        </div>
+        <div class="control">
+          <button type="button" class="button is-danger" onclick="removeInput(this)">Remove</button>
+        `;
+      linkInputs.appendChild(newInput);
+    }
+
+    function removeInput(button) {
+      const linkInput = button.parentElement.parentElement;
+      linkInput.remove();
+    }
+
+    document.getElementById('linkForm').addEventListener('submit', function(event) {
+      // TODO: Form 형태로 변경 필요
+      event.preventDefault();
+      const formData = new FormData(this);
+      const bookTitle = formData.get('bookTitle');
+      const links = formData.getAll('links');
+      console.log('Book Title:', bookTitle);
+      console.log('Entered Links:', links);
+
+      fetch('/api/v1/convert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ bookTitle, links })
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response from the server
+          console.log(data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      // You can send the data to the server or perform additional operations here.
+    });
+  </script>
+</body>
+</html>

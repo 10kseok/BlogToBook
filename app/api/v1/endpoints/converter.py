@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from app.api.v1.model.dto import ConvertRequest
 from app.services.epub_converter import EPUBConverter
 from fastapi.responses import FileResponse
 import os
@@ -7,9 +8,9 @@ router = APIRouter()
 converter = EPUBConverter()
 
 @router.post("/convert")
-async def convert_to_epub(url: str):
+async def convert_to_epub(request: ConvertRequest):
     try:
-        epub_path = await converter.convert_url_to_epub(url)
+        epub_path = await converter.convert_urls_to_epub(request.links, request.book_title)
         
         # 파일이 존재하는지 확인
         if not os.path.exists(epub_path):

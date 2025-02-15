@@ -72,16 +72,16 @@ class EPUBConverter:
         finally:
             os.unlink(temp_html_path)
 
-    async def extract_useful_content(self, url: str) -> str:
-        # TODO: 특정 URL에서 output_format을 html으로 하면 추출 실패함
-        # ex) https://10kseok.github.io/posts/gradual-improvement-with-bubble-sort/
-        downloaded = tf.fetch_url(url)
+    async def _extract_useful_content(self, url: str) -> str:
+        downloaded = tf.fetch_url(url).replace("\\u003C", "<").replace("\\n", "<br>")
         html_content = tf.extract(
             downloaded,
-            # output_format="html",
+            url=url,
+            output_format="html",
             include_images=True,
             include_formatting=True,
-            favor_precision=True
+            include_comments=True,
+            favor_recall=True,
         ).replace("graphic", "img")
         
         # base64로 변환하면 epub으로 변환할 때 따로 이미지를 다운로드하지 않아도 됨
@@ -90,7 +90,7 @@ class EPUBConverter:
         return html_with_base64
     
     async def convert_urls_to_epub(self, urls: list[str], title: str) -> str:
-        contents = "\n".join([await self.extract_useful_content(u) for u in urls])
+        contents = "\n".join([await self._extract_useful_content(u) for u in urls])
 
         # Generate output path
         output_filename = f"{title}.epub"

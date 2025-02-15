@@ -70,13 +70,10 @@
     }
 
     document.getElementById('linkForm').addEventListener('submit', function(event) {
-      // TODO: Form 형태로 변경 필요
       event.preventDefault();
       const formData = new FormData(this);
       const bookTitle = formData.get('bookTitle');
       const links = formData.getAll('links');
-      console.log('Book Title:', bookTitle);
-      console.log('Entered Links:', links);
 
       fetch('/api/v1/convert', {
         method: 'POST',
@@ -93,7 +90,6 @@
         .catch(error => {
           console.error('Error:', error);
         });
-      // You can send the data to the server or perform additional operations here.
     });
   </script>
 </body>

@@ -50,14 +50,17 @@ class EPUBConverter:
         try:
             cmd = [
                 'ebook-convert',
-                temp_html_path,
-                output_path,
-                '--enable-heuristics',
-                '--input-encoding', 'utf-8',
-                '--epub-version', '2',
-                '--pretty-print',
-                '--title', title,
+                temp_html_path,                # 입력 파일 경로
+                output_path,                   # 출력 파일 경로
+                '--enable-heuristics',         # 휴리스틱스 사용 옵션 (인자 필요 없음)
+                '--smarten-punctuation',       # 스마트 펑크추에이션 변환 옵션 (인자 필요 없음)
+                '--insert-blank-line',         # 문단 사이에 빈 줄 삽입 옵션 (인자 필요 없음)
+                '--input-encoding', 'utf-8',    # 입력 파일 인코딩 옵션과 인자
+                '--epub-version', '2',         # EPUB 버전 설정 옵션과 인자
+                '--pretty-print',              # 사람 친화적인 출력 옵션 (인자 필요 없음)
+                '--title', title,              # 제목 옵션과 인자
             ]
+
             
             result = subprocess.run(cmd, capture_output=True, text=True)
             success = result.returncode == 0

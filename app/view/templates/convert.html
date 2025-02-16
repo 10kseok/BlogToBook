@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6366F1;
@@ -156,10 +157,10 @@
         }
 
         .navbar-brand .title {
-            font-family: 'Urbanist', sans-serif;
-            font-size: 2rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
+            font-family: 'Pacifico', cursive;
+            font-size: 2.2rem;
+            font-weight: 400;
+            letter-spacing: 0;
             margin: 0;
         }
 
@@ -192,6 +193,17 @@
             width: 20px;
             height: 20px;
             margin-right: 0.5rem;
+        }
+
+        .footer {
+            background: white;
+            padding: 2rem 0;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .footer p {
+            color: var(--text-light);
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -289,6 +301,12 @@
         </div>
     </section>
 
+    <footer class="footer">
+        <div class="container has-text-centered">
+          <p>Contact: koesnam.dev@gmail.com</p>
+        </div>
+    </footer>
+    
     <script>
         function addInput() {
             const linkInputs = document.getElementById('linkInputs');

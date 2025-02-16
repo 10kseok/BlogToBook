@@ -1,162 +1,323 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog to Book</title>
-  <!-- Bulma CSS CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .link-input {
-      display: flex;
-      margin-bottom: 10px;
-    }
-    .hidden {
-      display: none;
-    }
-    #downloadSection {
-      margin-top: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog to Book - 블로그를 전자책으로</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366F1;
+            --secondary: #9333EA;
+            --background: #FFFFFF;
+            --text: #111827;
+            --text-light: #6B7280;
+            --accent: #3B82F6;
+        }
+
+        body {
+            font-family: 'Inter', 'Pretendard', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .hero {
+            background-color: #F3F4F6;  /* 그라디언트 제거하고 단색 회색으로 변경 */
+            padding: 6rem 0 12rem;
+            margin-top: 3.5rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150px;
+            background: var(--background);
+            bottom: -70px;
+            left: -25%;
+            border-radius: 50%;
+        }
+
+        .hero .title {
+            color: var(--primary);  /* 흰색에서 primary 색상으로 변경 */
+            font-weight: 700;
+            font-size: 4rem;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero .subtitle {
+            color: var(--text);  /* 반투명 흰색에서 기본 텍스트 색상으로 변경 */
+            font-size: 1.25rem;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        .button {
+            padding: 1rem 2rem;
+            height: auto;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .button.is-primary {
+            background: white;
+            color: var(--primary);
+            border-color: white;
+        }
+
+        .button.is-primary:hover {
+            background: var(--primary);
+            color: white;
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
+        .feature-card {
+            padding: 2.5rem;
+            border: 1px solid #E5E7EB;
+            border-radius: 1rem;
+            background: white;
+            box-shadow: none;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(79, 70, 229, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: unset;
+        }
+
+        .feature-card h3 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        section {
+            padding: 5rem 0;
+        }
+
+        .title.is-2 {
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 3rem;
+        }
+
+        #convert {
+            background: linear-gradient(to bottom, #F9FAFB, white);
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand .title {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        .navbar-brand a:hover {
+            text-decoration: none;
+        }
+
+        .content {
+            padding-left: 20%;
+        }
+
+        .content .mb-5 {
+            margin-bottom: 2rem !important;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: none;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .step-wrapper {
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+
+        .content .mb-5 span:last-child {
+            font-size: 1.1rem;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="title">Blog To Book</h1>
-    <form id="linkForm">
-      <div class="field">
-        <label class="label">Book Title</label>
-        <div class="control">
-          <input type="text" class="input" name="bookTitle" placeholder="Enter book title" required>
+    <!-- New Navbar -->
+    <nav class="navbar is-fixed-top">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="/" class="navbar-item">
+                    <h1 class="title">B2B</h1>
+                </a>
+            </div>
         </div>
-      </div>
-      <div id="linkInputs">
-        <label class="label">Blog links (sources)</label>
-        <div class="link-input field has-addons">
-          <div class="control is-expanded">
-            <input type="url" class="input" name="links" placeholder="Enter link" required>
-          </div>
-          <div class="control">
-            <button type="button" class="button is-danger" onclick="removeInput(this)">Remove</button>
-          </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero is-medium">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title is-1 mb-6">
+                    Blog To Book
+                </h1>
+                <h2 class="subtitle is-4 mb-6">
+                    몇 번의 클릭으로 블로그 포스트를 EPUB, PDF로 변환
+                </h2>
+                <a href="#convert" class="button is-primary is-large">
+                    <span class="icon">
+                        <i class="fas fa-bolt"></i>  <!-- book-reader에서 bolt(번개)로 변경 -->
+                    </span>
+                    <span>로그인 없이 바로 시작</span>
+                </a>
+            </div>
         </div>
-      </div>
-      <div class="field">
-        <button type="button" class="button is-primary" onclick="addInput()">Add Link</button>
-        <button type="submit" id="publishBtn" class="button is-success">
-          <span class="icon-text">
-            <span>Publish</span>
-          </span>
-        </button>
-      </div>
-    </form>
-    
-    <div id="loadingSection" class="hidden has-text-centered">
-      <progress class="progress is-small is-primary" max="100">15%</progress>
-      <p>Converting your blog posts...</p>
-    </div>
+    </section>
 
-    <div id="downloadSection" class="hidden">
-      <button id="downloadBtn" class="button is-link is-fullwidth">
-        <span class="icon-text">
-          <span class="icon">
-            <i class="fas fa-download"></i>
-          </span>
-          <span>Download Book</span>
-        </span>
-      </button>
-    </div>
-  </div>
-
-  <script>
-    function addInput() {
-      const linkInputs = document.getElementById('linkInputs');
-      const newInput = document.createElement('div');
-      newInput.className = 'link-input field has-addons';
-      newInput.innerHTML = `
-        <div class="control is-expanded">
-          <input type="url" class="input" name="links" placeholder="Enter link" required>
+    <!-- Features Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="title is-2 has-text-centered mb-6">주요 기능</h2>
+            <div class="columns is-multiline">
+                <div class="column is-4">
+                    <div class="feature-card has-text-centered">
+                        <span class="icon feature-icon">
+                            <i class="fas fa-book"></i>  <!-- fa-file-pdf에서 fa-book으로 변경 -->
+                        </span>
+                        <h3 class="title is-4">EPUB/PDF 변환</h3>
+                        <p>게시글을 EPUB과 PDF 형식으로 손쉽게 변환하세요</p>
+                    </div>
+                </div>
+                <div class="column is-4">
+                    <div class="feature-card has-text-centered">
+                        <span class="icon feature-icon">
+                            <i class="fas fa-list"></i>
+                        </span>
+                        <h3 class="title is-4">자동 목차 생성(예정)</h3>
+                        <p>포스트 제목을 기반으로 자동으로 목차를 생성합니다</p>
+                    </div>
+                </div>
+                <div class="column is-4">
+                    <div class="feature-card has-text-centered">
+                        <span class="icon feature-icon">
+                            <i class="fas fa-image"></i>
+                        </span>
+                        <h3 class="title is-4">커버 이미지 생성(예정)</h3>
+                        <p>AI가 콘텐츠에 맞는 표지 이미지를 자동으로 생성합니다</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="control">
-          <button type="button" class="button is-danger" onclick="removeInput(this)">Remove</button>
-        `;
-      linkInputs.appendChild(newInput);
-    }
+    </section>
 
-    function removeInput(button) {
-      const linkInput = button.parentElement.parentElement;
-      linkInput.remove();
-    }
+    <!-- How to Use Section -->
+    <section class="section" style="background-color: white;">
+        <div class="container">
+            <h2 class="title is-2 has-text-centered mb-6">사용 방법</h2>
+            <div class="columns is-multiline">
+                <div class="column is-6 is-offset-3">
+                    <div class="content">
+                        <div class="mb-5">
+                            <div class="step-wrapper">
+                                <span class="step-number">1</span>
+                                <span>블로그 포스트 URL을 입력하세요</span>
+                            </div>
+                        </div>
+                        <div class="mb-5">
+                            <div class="step-wrapper">
+                                <span class="step-number">2</span>
+                                <span>원하는 전자책 형식을 선택하세요(현재 epub 형식만 지원)</span>
+                            </div>
+                        </div>
+                        <div class="mb-5">
+                            <div class="step-wrapper">
+                                <span class="step-number">3</span>
+                                <span>'전자책 만들기' 버튼을 클릭하세요</span>
+                            </div>
+                        </div>
+                        <div class="mb-5">
+                            <div class="step-wrapper">
+                                <span class="step-number">4</span>
+                                <span>변환된 전자책을 다운로드하세요</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    document.getElementById('linkForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      
-      const form = this;
-      const loadingSection = document.getElementById('loadingSection');
-      const downloadSection = document.getElementById('downloadSection');
-      
-      // Hide form and show loading
-      form.classList.add('hidden');
-      loadingSection.classList.remove('hidden');
-
-      const bookTitle = form.querySelector('input[name="bookTitle"]').value;
-      const links = Array.from(form.querySelectorAll('input[name="links"]'))
-                       .map(input => input.value)
-                       .filter(link => link.trim() !== '');
-
-      const requestData = {
-        bookTitle,
-        links
-      };
-
-      fetch('/api/v1/convert', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
-      })
-        .then(response => {
-          if (!response.ok) throw new Error('Network response was not ok');
-          return response.blob();
-        })
-        .then(blob => {
-          // Hide loading and show download button
-          loadingSection.classList.add('hidden');
-          downloadSection.classList.remove('hidden');
-
-          // Setup download button
-          const downloadBtn = document.getElementById('downloadBtn');
-          downloadBtn.onclick = () => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${bookTitle}.epub`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            // Show form after download starts
-            form.classList.remove('hidden');
-            downloadSection.classList.add('hidden');
-          };
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          form.classList.remove('hidden');
-          loadingSection.classList.add('hidden');
-        });
-    });
-  </script>
+    <!-- Convert Section -->
+    <section id="convert" class="section">
+        <div class="container has-text-centered">
+            <h2 class="title is-2 has-text-centered mb-6">전자책 변환</h2>
+            <a href="/convert" class="button is-primary is-large">
+                <span class="icon">
+                    <i class="fas fa-book-reader"></i>
+                </span>
+                <span>지금 시작하기</span>
+            </a>
+        </div>
+    </section>
 </body>
 </html>

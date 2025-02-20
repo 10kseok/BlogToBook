@@ -301,6 +301,77 @@
             margin-bottom: 0;
         }
 
+        .add-link-button {
+            width: 100%;
+            padding: 0.5rem;
+            background: none;
+            border: 2px dashed #E5E7EB;
+            border-radius: 0.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .add-link-button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+
+        .add-link-button i {
+            font-size: 1.1rem;
+        }
+
+        .delete-button {
+            width: 40px;  /* 너비를 input 높이에 맞춤 */
+            height: 40px;  /* 높이를 input 높이에 맞춤 */
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #EF4444;
+            transition: all 0.2s ease;
+        }
+
+        .delete-button:hover {
+            background-color: #FEE2E2;
+            border-color: #EF4444;
+            color: #B91C1C;
+            transform: none;
+        }
+
+        .delete-button i {
+            font-size: 1rem;
+        }
+
+        /* input 높이 명시적 지정 */
+        .input {
+            height: 40px;
+        }
+
+        .link-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 40px;
+            background-color: #F3F4F6;
+            color: var(--text-light);
+            font-weight: 600;
+            border: 1px solid #E5E7EB;
+            border-right: none;
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
+
+        /* input 스타일 수정 */
+        .input[name="links"] {
+            border-radius: 0;
+        }
     </style>
 </head>
 <body>
@@ -375,20 +446,22 @@
                             <div id="linkInputs">
                                 <label class="label">블로그 링크</label>
                                 <div class="link-input field has-addons">
+                                    <div class="link-number">1</div>
                                     <div class="control is-expanded">
-                                        <input type="url" class="input" name="links" placeholder="블로그 포스트 URL을 입력하세요" required>
+                                        <input type="url" class="input" name="links" placeholder="https://10kseok.github.io/posts/wake-up-wake-up/" required>
                                     </div>
                                     <div class="control">
-                                        <button type="button" class="button is-danger" onclick="removeInput(this)">삭제</button>
+                                        <button type="button" class="button is-danger delete-button" onclick="removeInput(this)"><i class="fas fa-minus"></i></button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="field is-grouped">
-                                <div class="control">
-                                    <button type="button" class="button is-primary" onclick="addInput()">링크 추가</button>
-                                </div>
-                                <div class="control">
-                                    <button type="submit" id="publishBtn" class="button is-success">
+                            <button type="button" class="add-link-button" onclick="addInput()">
+                                <i class="fas fa-plus"></i>
+                                <span>링크 추가</span>
+                            </button>
+                            <div class="field is-grouped mt-5">
+                                <div class="control is-expanded">
+                                    <button type="submit" id="publishBtn" class="button is-success is-fullwidth">
                                         <span class="icon-text">
                                             <span class="icon">
                                                 <i class="fas fa-book"></i>
@@ -430,14 +503,16 @@
     <script>
         function addInput() {
             const linkInputs = document.getElementById('linkInputs');
+            const currentCount = linkInputs.getElementsByClassName('link-input').length + 1;
             const newInput = document.createElement('div');
             newInput.className = 'link-input field has-addons';
             newInput.innerHTML = `
+                <div class="link-number">${currentCount}</div>
                 <div class="control is-expanded">
-                    <input type="url" class="input" name="links" placeholder="블로그 포스트 URL을 입력하세요" required>
+                    <input type="url" class="input" name="links" placeholder="https://10kseok.github.io/posts/wake-up-wake-up/" required>
                 </div>
                 <div class="control">
-                    <button type="button" class="button is-danger" onclick="removeInput(this)">삭제</button>
+                    <button type="button" class="button is-danger delete-button" onclick="removeInput(this)"><i class="fas fa-minus"></i></button>
                 </div>
             `;
             linkInputs.appendChild(newInput);
@@ -446,6 +521,14 @@
         function removeInput(button) {
             const linkInput = button.parentElement.parentElement;
             linkInput.remove();
+            updateNumbers();
+        }
+
+        function updateNumbers() {
+            const numbers = document.getElementsByClassName('link-number');
+            Array.from(numbers).forEach((num, index) => {
+                num.textContent = index + 1;
+            });
         }
 
         document.getElementById('linkForm').addEventListener('submit', function(event) {

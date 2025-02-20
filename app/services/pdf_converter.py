@@ -11,19 +11,19 @@ import os
 from app.core.config import settings
 
 
-class EPUBConverter(Converter):
+class PDFConverter(Converter):
     def __init__(self):
-        super().__init__(settings.EPUB_OUTPUT_DIR)
+        super().__init__(settings.PDF_OUTPUT_DIR)
 
     async def convert(self, urls: list[str], title: str) -> str:
         contents = "\n".join([await self._extract_useful_content(u) for u in urls])
-        output_filename = f"{title}.epub"
+        output_filename = f"{title}.pdf"
         output_path = os.path.join(self.output_dir, output_filename)
 
-        success = self._convert_to_epub(contents, output_path, title)
+        success = self._convert_to_pdf(contents, output_path, title)
         if success:
             return output_path
-        raise Exception("EPUB conversion failed")
+        raise Exception("PDF conversion failed")
 
     async def _extract_useful_content(self, url: str) -> str:
         downloaded = tf.fetch_url(url).replace("\\u003C", "<").replace("\\n", "<br>")
@@ -65,7 +65,7 @@ class EPUBConverter(Converter):
             print(f"Error downloading image {img_url}: {e}")
         return None
 
-    def _convert_to_epub(self, html_content: str, output_path: str, title: str) -> bool:
+    def _convert_to_pdf(self, html_content: str, output_path: str, title: str) -> bool:
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".html", delete=False, encoding="utf-8"
         ) as temp_html:
@@ -77,16 +77,28 @@ class EPUBConverter(Converter):
                 "ebook-convert",
                 temp_html_path,  # 입력 파일 경로
                 output_path,  # 출력 파일 경로
-                "--enable-heuristics",  # 휴리스틱스 사용 옵션 (인자 필요 없음)
-                "--smarten-punctuation",  # 스마트 펑크추에이션 변환 옵션 (인자 필요 없음)
-                "--insert-blank-line",  # 문단 사이에 빈 줄 삽입 옵션 (인자 필요 없음)
-                "--input-encoding",
-                "utf-8",  # 입력 파일 인코딩 옵션과 인자
-                "--epub-version",
-                "3",  # EPUB 버전 설정 옵션과 인자
-                "--pretty-print",  # 사람 친화적인 출력 옵션 (인자 필요 없음)
+                "--paper-size",
+                "a4",  # 용지 크기
+                "--pdf-default-font-size",
+                "14",  # 기본 폰트 크기
+                "--pdf-mono-font-size",
+                "13",  # 고정폭 폰트 크기
+                "--margin-left",
+                "48",  # 왼쪽 여백 크기
+                "--margin-right",
+                "48",  # 오른쪽 여백 크기
+                "--margin-top",
+                "72",  # 상단 여백
+                "--margin-bottom",
+                "72",  # 하단 여백
+                "--pdf-page-numbers",  # 페이지 번호 추가
+                "--enable-heuristics",  # 휴리스틱스 사용
                 "--title",
-                title,  # 제목 옵션과 인자
+                title,  # 제목 설정
+                "--pdf-header-template",
+                f'<div style="text-align: center; font-size: 10pt">{title}</div>',  # 헤더 폰트 크기 증가
+                "--pdf-footer-template",
+                '<div style="text-align: center; font-size: 10pt">_PAGENUM_</div>',  # 푸터 폰트 크기 증가
             ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)

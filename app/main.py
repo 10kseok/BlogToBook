@@ -5,17 +5,9 @@ from app.core.config import settings
 from app.view import page
 
 app = FastAPI(
-  title=settings.PROJECT_NAME,
-  openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-app.include_router(
-  converter.router,
-  prefix=settings.API_V1_STR,
-  tags=["converter"]
-)
+app.include_router(converter.router, prefix=settings.API_V1_STR, tags=["converter"])
 
-app.include_router(
-  page.router,
-  tags=["page"]
-)
+app.include_router(page.router, tags=["page"])

@@ -76,7 +76,6 @@
         }
 
         .input {
-            background: #F9FAFB;
             border: 1px solid #E5E7EB;
             padding: 0.75rem 1rem;
             height: auto;
@@ -171,7 +170,6 @@
         .label {
             color: var(--text);
             font-weight: 600;
-            margin-bottom: 0.5rem;
         }
 
         .hidden {
@@ -257,6 +255,52 @@
             color: var(--text-light);
             font-size: 0.9rem;
         }
+
+        /* 툴팁 관련 새로운 스타일 */
+        .label-container {
+            display: flex;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .info-icon {
+            color: #6366F1;
+            cursor: help;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            background-color: #374151;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            width: 100%;
+            margin-top: 0.5rem;
+            z-index: 20;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-icon:hover + .tooltip {
+            display: block;
+        }
+
+        .format-name {
+            color: #E5E7EB;
+            font-weight: 600;
+        }
+
+        .format-description {
+            margin-bottom: 0.5rem;
+        }
+
+        .format-description:last-child {
+            margin-bottom: 0;
+        }
+
     </style>
 </head>
 <body>
@@ -298,6 +342,30 @@
                         </div>
                       
                         <form id="linkForm">
+                            <div class="field">
+                                <div class="label-container">
+                                    <label class="label">전자책 포맷</label>
+                                    <span class="info-icon">
+                                        <i class="fas fa-circle-info"></i>
+                                    </span>
+                                    <div class="tooltip">
+                                        <div class="format-description">
+                                            <span class="format-name">EPUB(3.0):</span> 대부분의 전자책 리더에서 지원되는 표준 포맷으로, 텍스트 크기 조절이 자유롭습니다.
+                                        </div>
+                                        <div class="format-description">
+                                            <span class="format-name">PDF:</span> 모든 기기에서 동일한 레이아웃을 유지하며, 인쇄용으로 적합합니다.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="control">
+                                    <div class="select">
+                                        <select name="format" required>
+                                            <option value="epub">EPUB</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="field">
                                 <label class="label">책 제목</label>
                                 <div class="control">
@@ -392,12 +460,14 @@
             loadingSection.classList.remove('hidden');
 
             const bookTitle = form.querySelector('input[name="bookTitle"]').value;
+            const format = form.querySelector('select[name="format"]').value.toLowerCase();
             const links = Array.from(form.querySelectorAll('input[name="links"]'))
                             .map(input => input.value)
                             .filter(link => link.trim() !== '');
 
             const requestData = {
                 bookTitle,
+                format,
                 links
             };
 
@@ -423,7 +493,7 @@
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `${bookTitle}.epub`;
+                    a.download = `${bookTitle}.${requestData.format}`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);

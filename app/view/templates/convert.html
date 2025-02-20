@@ -548,6 +548,13 @@
                             .map(input => input.value)
                             .filter(link => link.trim() !== '');
 
+            if (links.length === 0) {
+                form.classList.remove('hidden');
+                loadingSection.classList.add('hidden');
+                alert('블로그 포스트 URL을 하나 이상 입력해주세요.');
+                return;
+            }
+
             const requestData = {
                 bookTitle,
                 format,

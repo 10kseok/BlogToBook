@@ -1,7 +1,9 @@
+import os
+import uuid
+import tempfile
 from .converter import Converter
 import trafilatura as tf
 import requests
-import base64
 from bs4 import BeautifulSoup
 import mimetypes
 from urllib.parse import urljoin
@@ -16,16 +18,25 @@ class EPUBConverter(Converter):
         super().__init__(settings.EPUB_OUTPUT_DIR)
 
     async def convert(self, urls: list[str], title: str) -> str:
-        contents = "\n".join([await self._extract_useful_content(u) for u in urls])
-        output_filename = f"{title}.epub"
-        output_path = os.path.join(self.output_dir, output_filename)
-
-        success = self._convert_to_epub(contents, output_path, title)
-        if success:
-            return output_path
+        with tempfile.TemporaryDirectory() as temp_dir:
+            contents = await self._generate_combined_html(urls, temp_dir)
+            output_path = os.path.join(self.output_dir, f"{title}.epub")
+            html_filename = self._write_html_file(contents, temp_dir)
+            if self._convert_to_epub(html_filename, output_path, title, temp_dir):
+                return output_path
         raise Exception("EPUB conversion failed")
 
-    async def _extract_useful_content(self, url: str) -> str:
+    async def _generate_combined_html(self, urls: list[str], temp_dir: str) -> str:
+        return "\n".join([await self._extract_useful_content(u, temp_dir) for u in urls])
+
+    def _write_html_file(self, contents: str, temp_dir: str) -> str:
+        html_filename = f"input_{uuid.uuid4()}.html"
+        input_html = os.path.join(temp_dir, html_filename)
+        with open(input_html, "w", encoding="utf-8") as f:
+            f.write(contents)
+        return html_filename
+
+    async def _extract_useful_content(self, url: str, temp_dir: str) -> str:
         downloaded = tf.fetch_url(url)
         html_content = tf.extract(
             downloaded,
@@ -35,52 +46,43 @@ class EPUBConverter(Converter):
             include_formatting=True,
             favor_recall=True,
             include_comments=False,
-        ).replace("graphic", "img")
+        ).replace("graphic", "img") # trafilatura는 img 태그를 graphic으로 변환하기 때문에 다시 img로 변환
+        return self._replace_images_with_temp_files(html_content, url, temp_dir)
 
-        return self._convert_images_to_base64(html_content, url)
-
-    def _convert_images_to_base64(self, html_content: str, base_url: str) -> str:
+    def _replace_images_with_temp_files(self, html_content: str, base_url: str, temp_dir: str) -> str:
         soup = BeautifulSoup(html_content, "html.parser")
         for img in soup.find_all("img"):
             src = img.get("src")
             if src:
                 absolute_url = urljoin(base_url, src)
-                base64_data = self._get_image_base64(absolute_url)
-                if base64_data:
-                    img["src"] = base64_data
+                filename = self._download_image(absolute_url, temp_dir)
+                if filename:
+                    img["src"] = filename
         return str(soup)
 
-    def _get_image_base64(self, img_url: str) -> str | None:
+    def _download_image(self, img_url: str, temp_dir: str) -> str | None:
         try:
             response = requests.get(img_url)
             if response.status_code == 200:
                 content_type = response.headers.get("content-type", "")
-                if not content_type:
-                    ext = mimetypes.guess_type(img_url)[0]
-                    content_type = ext if ext else "image/jpeg"
-
-                b64_image = base64.b64encode(response.content).decode("utf-8")
-                return f"data:{content_type};base64,{b64_image}"
+                ext = mimetypes.guess_extension(content_type) if content_type else ".jpg"
+                filename = f"{uuid.uuid4()}{ext}"
+                file_path = os.path.join(temp_dir, filename)
+                with open(file_path, "wb") as f:
+                    f.write(response.content)
+                return filename
         except Exception as e:
             print(f"Error downloading image {img_url}: {e}")
         return None
 
-    def _convert_to_epub(self, html_content: str, output_path: str, title: str) -> bool:
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".html", delete=False, encoding="utf-8"
-        ) as temp_html:
-            temp_html.write(html_content)
-            temp_html_path = temp_html.name
-
+    def _convert_to_epub(self, html_filename: str, output_path: str, title: str, work_dir: str) -> bool:
         try:
             css_path = str(settings.STATIC_DIR.joinpath('styles', 'ebook.css'))
             if not os.path.exists(css_path):
                 raise FileNotFoundError(f"CSS file not found at {css_path}")
-            
-            # 기본 명령어 구성
             cmd = [
                 "ebook-convert",
-                temp_html_path,
+                html_filename,
                 output_path,
                 "--enable-heuristics",
                 "--smarten-punctuation",
@@ -93,16 +95,13 @@ class EPUBConverter(Converter):
                 "--level2-toc", "//h:h3",
                 "--extra-css", css_path,
             ]
-
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            success = result.returncode == 0
-
-            if success:
+            result = subprocess.run(cmd, capture_output=True, text=True, cwd=work_dir)
+            if result.returncode == 0:
                 print(f"Successfully converted to {output_path}")
+                return True
             else:
                 print(f"Conversion failed: {result.stderr}")
-
-            return success
-
-        finally:
-            os.unlink(temp_html_path)
+                return False
+        except Exception as e:
+            print(f"Exception during EPUB conversion: {e}")
+            return False

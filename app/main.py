@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-import uvicorn
 from app.api.v1.endpoints import converter
 from app.core.config import settings
 from app.view import page

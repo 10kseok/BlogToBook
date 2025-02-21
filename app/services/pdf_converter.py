@@ -26,15 +26,15 @@ class PDFConverter(Converter):
         raise Exception("PDF conversion failed")
 
     async def _extract_useful_content(self, url: str) -> str:
-        downloaded = tf.fetch_url(url).replace("\\u003C", "<").replace("\\n", "<br>")
+        downloaded = tf.fetch_url(url)
         html_content = tf.extract(
             downloaded,
             url=url,
             output_format="html",
             include_images=True,
             include_formatting=True,
-            include_comments=True,
             favor_recall=True,
+            include_comments=False,
         ).replace("graphic", "img")
 
         return self._convert_images_to_base64(html_content, url)
@@ -73,32 +73,30 @@ class PDFConverter(Converter):
             temp_html_path = temp_html.name
 
         try:
+            css_path = str(settings.STATIC_DIR.joinpath('styles', 'ebook.css'))
+            if not os.path.exists(css_path):
+                raise FileNotFoundError(f"CSS file not found at {css_path}")
+                
             cmd = [
                 "ebook-convert",
-                temp_html_path,  # 입력 파일 경로
-                output_path,  # 출력 파일 경로
-                "--paper-size",
-                "a4",  # 용지 크기
-                "--pdf-default-font-size",
-                "14",  # 기본 폰트 크기
-                "--pdf-mono-font-size",
-                "13",  # 고정폭 폰트 크기
-                "--margin-left",
-                "48",  # 왼쪽 여백 크기
-                "--margin-right",
-                "48",  # 오른쪽 여백 크기
-                "--margin-top",
-                "72",  # 상단 여백
-                "--margin-bottom",
-                "72",  # 하단 여백
-                "--pdf-page-numbers",  # 페이지 번호 추가
-                "--enable-heuristics",  # 휴리스틱스 사용
-                "--title",
-                title,  # 제목 설정
+                temp_html_path,
+                output_path,
+                "--paper-size", "a4",
+                "--pdf-default-font-size", "14",
+                "--pdf-mono-font-size", "13",
+                "--margin-left", "48",
+                "--margin-right", "48",
+                "--margin-top", "72",
+                "--margin-bottom", "72",
+                "--pdf-page-numbers",
+                "--enable-heuristics",
+                "--title", title,
                 "--pdf-header-template",
-                f'<div style="text-align: center; font-size: 10pt">{title}</div>',  # 헤더 폰트 크기 증가
+                f'<div style="text-align: center; font-size: 10pt">{title}</div>',
                 "--pdf-footer-template",
-                '<div style="text-align: center; font-size: 10pt">_PAGENUM_</div>',  # 푸터 폰트 크기 증가
+                '<div style="text-align: center; font-size: 10pt">_PAGENUM_</div>',
+                "--level1-toc", "//h:h2",
+                "--level2-toc", "//h:h3",
             ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)

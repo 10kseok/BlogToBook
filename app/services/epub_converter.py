@@ -26,15 +26,15 @@ class EPUBConverter(Converter):
         raise Exception("EPUB conversion failed")
 
     async def _extract_useful_content(self, url: str) -> str:
-        downloaded = tf.fetch_url(url).replace("\\u003C", "<").replace("\\n", "<br>")
+        downloaded = tf.fetch_url(url)
         html_content = tf.extract(
             downloaded,
             url=url,
             output_format="html",
             include_images=True,
             include_formatting=True,
-            include_comments=True,
             favor_recall=True,
+            include_comments=False,
         ).replace("graphic", "img")
 
         return self._convert_images_to_base64(html_content, url)
@@ -73,20 +73,24 @@ class EPUBConverter(Converter):
             temp_html_path = temp_html.name
 
         try:
+            css_path = str(settings.STATIC_DIR.joinpath('styles', 'ebook.css'))
+            if not os.path.exists(css_path):
+                raise FileNotFoundError(f"CSS file not found at {css_path}")
+            
+            # 기본 명령어 구성
             cmd = [
                 "ebook-convert",
-                temp_html_path,  # 입력 파일 경로
-                output_path,  # 출력 파일 경로
-                "--enable-heuristics",  # 휴리스틱스 사용 옵션 (인자 필요 없음)
-                "--smarten-punctuation",  # 스마트 펑크추에이션 변환 옵션 (인자 필요 없음)
-                "--insert-blank-line",  # 문단 사이에 빈 줄 삽입 옵션 (인자 필요 없음)
-                "--input-encoding",
-                "utf-8",  # 입력 파일 인코딩 옵션과 인자
-                "--epub-version",
-                "3",  # EPUB 버전 설정 옵션과 인자
-                "--pretty-print",  # 사람 친화적인 출력 옵션 (인자 필요 없음)
-                "--title",
-                title,  # 제목 옵션과 인자
+                temp_html_path,
+                output_path,
+                "--enable-heuristics",
+                "--smarten-punctuation",
+                "--insert-blank-line",
+                "--input-encoding", "utf-8",
+                "--epub-version", "3",
+                "--pretty-print",
+                "--title", title,
+                "--level1-toc", "//h:h2",
+                "--level2-toc", "//h:h3",
             ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)

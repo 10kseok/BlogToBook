@@ -8,5 +8,4 @@ app = FastAPI(
 )
 
 app.include_router(converter.router, prefix=settings.API_V1_STR, tags=["converter"])
-
 app.include_router(page.router, tags=["page"])

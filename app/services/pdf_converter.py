@@ -97,6 +97,7 @@ class PDFConverter(Converter):
                 '<div style="text-align: center; font-size: 10pt">_PAGENUM_</div>',
                 "--level1-toc", "//h:h2",
                 "--level2-toc", "//h:h3",
+                "--extra-css", css_path,
             ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)

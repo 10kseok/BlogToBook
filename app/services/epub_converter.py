@@ -91,6 +91,7 @@ class EPUBConverter(Converter):
                 "--title", title,
                 "--level1-toc", "//h:h2",
                 "--level2-toc", "//h:h3",
+                "--extra-css", css_path,
             ]
 
             result = subprocess.run(cmd, capture_output=True, text=True)

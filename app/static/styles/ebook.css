@@ -1,0 +1,123 @@
+@charset "UTF-8";
+@font-face {
+    font-family: "Noto Sans CJK KR";
+    src: url("../fonts/NotoSansKR-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Noto Serif KR";
+    font-weight: normal;
+    src: url("../fonts/NotoSerifKR-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Noto Serif KR";
+    font-weight: bold;
+    src: url("../fonts/NotoSerifKR-Bold.ttf");
+}
+@font-face {
+    font-family: "D2Coding";
+    src: url("../fonts/D2Coding.ttf");
+}
+
+/* 기본 폰트 설정 */
+body {
+    font-family: "Noto Serif CJK KR", "Noto Serif KR", Georgia, "Times New Roman", serif;
+    line-height: 1.6;
+    text-align: justify;
+    color: #333333;
+    margin: 0;
+    padding: 0;
+}
+
+/* 제목 스타일링 */
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Noto Sans CJK KR", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    line-height: 1.2;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    color: #1c1c1c;
+}
+
+h1 { font-size: 2.2em; }
+h2 { font-size: 1.8em; }
+h3 { font-size: 1.5em; }
+h4 { font-size: 1.3em; }
+
+/* 단락 스타일링 */
+p {
+    margin-bottom: 1.2em;
+}
+
+/* 링크 스타일링 */
+a {
+    color: #2980b9;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* 코드 블록 스타일링 */
+pre, code {
+    font-family: "D2Coding", "Consolas", "Liberation Mono", monospace;
+    background-color: #f8f9fa;
+    border-radius: 3px;
+    padding: 0.2em 0.4em;
+}
+
+pre {
+    padding: 1em;
+    overflow-x: auto;
+    line-height: 1.45;
+}
+
+/* 인용구 스타일링 */
+blockquote {
+    margin: 1em 0;
+    padding-left: 1em;
+    border-left: 4px solid #e9ecef;
+    color: #495057;
+}
+
+/* 리스트 스타일링 */
+ul, ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin-bottom: 0.5em;
+}
+
+/* 이미지 스타일링 */
+img {
+    max-width: 100%;
+    height: auto;
+    margin: 1em auto;
+    display: block;
+}
+
+/* 표 스타일링 */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+th, td {
+    padding: 0.5em;
+    border: 1px solid #dee2e6;
+}
+
+th {
+    background-color: #f8f9fa;
+}
+
+/* 수평선 스타일링 */
+hr {
+    border: none;
+    border-top: 1px solid #dee2e6;
+    margin: 2em 0;
+}

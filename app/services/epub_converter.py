@@ -1,17 +1,11 @@
 import os
 import uuid
 import tempfile
-from .converter import Converter
 import trafilatura as tf
-import requests
-from bs4 import BeautifulSoup
-import mimetypes
-from urllib.parse import urljoin
 import subprocess
-import tempfile
-import os
 from app.core.config import settings
 from app.core.exceptions import UsefulExtractFailedException, ConversionFailedException
+from app.services.converter import Converter
 
 
 class EPUBConverter(Converter):
@@ -53,33 +47,7 @@ class EPUBConverter(Converter):
             raise UsefulExtractFailedException(url)
 
         html_content = self._preprocess_html_content(html_content)
-        return self._replace_images_with_temp_files(html_content, url, temp_dir) 
-
-    def _replace_images_with_temp_files(self, html_content: str, base_url: str, temp_dir: str) -> str:
-        soup = BeautifulSoup(html_content, "html.parser")
-        for img in soup.find_all("img"):
-            src = img.get("src")
-            if src:
-                absolute_url = urljoin(base_url, src)
-                filename = self._download_image(absolute_url, temp_dir)
-                if filename:
-                    img["src"] = filename
-        return str(soup)
-
-    def _download_image(self, img_url: str, temp_dir: str) -> str | None:
-        try:
-            response = requests.get(img_url)
-            if response.status_code == 200:
-                content_type = response.headers.get("content-type", "")
-                ext = mimetypes.guess_extension(content_type) if content_type else ".jpg"
-                filename = f"{uuid.uuid4()}{ext}"
-                file_path = os.path.join(temp_dir, filename)
-                with open(file_path, "wb") as f:
-                    f.write(response.content)
-                return filename
-        except Exception as e:
-            print(f"Error downloading image {img_url}: {e}")
-        return None
+        return await self._replace_images_with_temp_files(html_content, url, temp_dir)
 
     def _convert_to_epub(self, html_filename: str, output_path: str, title: str, work_dir: str) -> bool:
         try:

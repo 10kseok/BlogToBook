@@ -1,7 +1,12 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-
-from bs4 import BeautifulSoup, NavigableString
+import aiohttp
+import asyncio
+import os
+import uuid
+import mimetypes
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 
 class Converter(ABC):
@@ -24,17 +29,85 @@ class Converter(ABC):
         pass
 
     @abstractmethod
-    async def _extract_useful_content(self, url: str) -> str:
+    async def _extract_useful_content(self, url: str, temp_dir: str) -> str:
         """
         URL에서 유용한 컨텐츠를 추출합니다.
 
         Args:
             url: 컨텐츠를 추출할 URL
+            temp_dir: 임시 파일을 저장할 디렉토리
 
         Returns:
             추출된 HTML 컨텐츠
         """
         pass
+
+    async def _replace_images_with_temp_files(self, html_content: str, base_url: str, temp_dir: str) -> str:
+        """
+        HTML 내 이미지를 다운로드하여 임시 파일로 저장하고 경로를 대체합니다.
+        
+        Args:
+            html_content: 처리할 HTML 컨텐츠
+            base_url: 상대 URL을 절대 URL로 변환하기 위한 기본 URL
+            temp_dir: 이미지를 저장할 임시 디렉토리
+            
+        Returns:
+            이미지 경로가 수정된 HTML 컨텐츠
+        """
+        soup = BeautifulSoup(html_content, "html.parser")
+        img_tasks = []
+        img_elements = []
+        
+        # 이미지 태그에서 src 추출 및 다운로드 태스크 생성
+        for img in soup.find_all("img"):
+            src = img.get("src")
+            if src:
+                absolute_url = urljoin(base_url, src)
+                img_tasks.append(self._download_image(absolute_url, temp_dir))
+                img_elements.append(img)
+        
+        # 모든 이미지 비동기 다운로드 실행
+        if img_tasks:
+            results = await asyncio.gather(*img_tasks, return_exceptions=True)
+            
+            # 결과 처리 및 HTML 업데이트
+            for img, result in zip(img_elements, results):
+                if isinstance(result, Exception):
+                    print(f"Error downloading image: {result}")
+                    continue
+                    
+                if result:  # 다운로드 성공
+                    img["src"] = result
+        
+        return str(soup)
+
+    async def _download_image(self, img_url: str, temp_dir: str) -> str | None:
+        """
+        이미지 URL에서 이미지를 비동기로 다운로드합니다.
+        
+        Args:
+            img_url: 이미지 URL
+            temp_dir: 이미지를 저장할 임시 디렉토리
+            
+        Returns:
+            저장된 이미지 파일명 또는 다운로드 실패 시 None
+        """
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(img_url) as response:
+                    if response.status == 200:
+                        content_type = response.headers.get("content-type", "")
+                        ext = mimetypes.guess_extension(content_type) if content_type else ".jpg"
+                        filename = f"{uuid.uuid4()}{ext}"
+                        file_path = os.path.join(temp_dir, filename)
+                        
+                        with open(file_path, "wb") as f:
+                            f.write(await response.read())
+                            
+                        return filename
+        except Exception as e:
+            print(f"Error downloading image {img_url}: {e}")
+        return None
 
     def _preprocess_html_content(self, html_content: str) -> str:
         """

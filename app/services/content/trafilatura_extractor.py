@@ -1,5 +1,5 @@
 import trafilatura as tf
-from app.core.exceptions import UsefulExtractFailedException
+from app.core.exceptions import ContentExtractFailedException
 from .base_extractor import ContentExtractorInterface
 
 
@@ -17,7 +17,7 @@ class TrafilaturaExtractor(ContentExtractorInterface):
             HTML 형식의 컨텐츠
             
         Raises:
-            UsefulExtractFailedException: 컨텐츠 추출 실패 시
+            ContentExtractFailedException: 컨텐츠 추출 실패 시
         """
         downloaded = tf.fetch_url(url)
         html_content = tf.extract(
@@ -31,6 +31,6 @@ class TrafilaturaExtractor(ContentExtractorInterface):
         )
         
         if not html_content:
-            raise UsefulExtractFailedException(url)
+            raise ContentExtractFailedException(url)
         
         return html_content

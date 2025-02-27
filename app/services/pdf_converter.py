@@ -9,6 +9,7 @@ import tempfile
 import os
 import uuid
 from app.core.config import settings
+from app.core.exceptions import UsefulExtractFailedException, ConversionFailedException
 
 
 class PDFConverter(Converter):
@@ -22,7 +23,7 @@ class PDFConverter(Converter):
             html_filename = self._write_html_file(contents, temp_dir)
             if self._convert_to_pdf(html_filename, output_path, title, temp_dir):
                 return output_path
-        raise Exception("PDF conversion failed")
+        raise ConversionFailedException("PDF conversion failed")
 
     async def _generate_combined_html(self, urls: list[str], temp_dir: str) -> str:
         return "\n".join([await self._extract_useful_content(u, temp_dir) for u in urls])
@@ -44,8 +45,13 @@ class PDFConverter(Converter):
             include_formatting=True,
             favor_recall=True,
             include_comments=False,
-        ).replace("graphic", "img") # trafilatura는 img 태그를 graphic으로 변환하기 때문에 다시 img로 변환
-        return self._replace_images_with_temp_files(html_content, url, temp_dir)
+        )
+        
+        if not html_content:
+            raise UsefulExtractFailedException(url)
+    
+        html_content = self._preprocess_html_content(html_content)
+        return self._replace_images_with_temp_files(html_content, url, temp_dir) 
 
     def _replace_images_with_temp_files(self, html_content: str, base_url: str, temp_dir: str) -> str:
         soup = BeautifulSoup(html_content, "html.parser")

@@ -24,10 +24,12 @@
 body {
     font-family: "Noto Serif CJK KR", "Noto Serif KR", Georgia, "Times New Roman", serif;
     line-height: 1.6;
-    text-align: justify;
     color: #333333;
     margin: 0;
     padding: 0;
+    word-break: normal;
+    overflow-wrap: anywhere; /* 긴 단어 줄바꿈 */
+    hyphens: auto;
 }
 
 /* 제목 스타일링 */
@@ -60,17 +62,30 @@ a:hover {
 }
 
 /* 코드 블록 스타일링 */
-pre, code {
-    font-family: "D2Coding", "Consolas", "Liberation Mono", monospace;
-    background-color: #f8f9fa;
-    border-radius: 3px;
-    padding: 0.2em 0.4em;
-}
-
 pre {
     padding: 1em;
+    margin: 1.5em 0;
     overflow-x: auto;
     line-height: 1.45;
+    background-color: #f8f9fa;
+    border-radius: 3px;
+    font-family: "D2Coding", "Consolas", "Liberation Mono", monospace;
+}
+
+pre.code-block {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: 1px solid #e1e4e8;
+}
+
+code {
+    font-family: "D2Coding", "Consolas", "Liberation Mono", monospace;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    padding: 0.2em 0.4em;
+    font-size: 0.9em;
+    white-space: normal;
+    display: inline;
 }
 
 /* 인용구 스타일링 */

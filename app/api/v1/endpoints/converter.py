@@ -3,10 +3,10 @@ from app.api.v1.model.dto import ConvertRequest
 from app.services.factory import ConverterFactory
 from fastapi.responses import FileResponse
 import os
-from app.api.v1.model.enums import EBookFormat
+import logging
 
 router = APIRouter()
-
+logger = logging.getLogger("uvicorn")
 
 @router.post("/convert")
 async def convert_to_ebook(request: ConvertRequest):
@@ -27,6 +27,8 @@ async def convert_to_ebook(request: ConvertRequest):
         )
 
     except ValueError as e:
+        logger.error(f"Invalid request parameters: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        logger.error(f"Error during ebook conversion: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))

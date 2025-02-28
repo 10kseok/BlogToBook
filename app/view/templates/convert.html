@@ -474,8 +474,8 @@
                         </form>
                         
                         <div id="loadingSection" class="hidden has-text-centered mt-5">
-                            <progress class="progress is-small is-primary" max="100">15%</progress>
-                            <p>전자책을 만드는 중입니다...</p>
+                            <progress id="conversionProgress" class="progress is-small is-primary" value="0" max="100">0%</progress>
+                            <p id="statusMessage">전자책을 만드는 중입니다...</p>
                         </div>
                     
                         <div id="downloadSection" class="hidden mt-5">
@@ -485,6 +485,20 @@
                                         <i class="fas fa-download"></i>
                                     </span>
                                     <span>전자책 다운로드</span>
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div id="errorSection" class="hidden mt-5">
+                            <div class="notification is-danger">
+                                <p id="errorMessage">오류가 발생했습니다.</p>
+                            </div>
+                            <button id="retryButton" class="button is-warning is-fullwidth mt-3">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i class="fas fa-redo"></i>
+                                    </span>
+                                    <span>다시 시도</span>
                                 </span>
                             </button>
                         </div>
@@ -501,6 +515,7 @@
     </footer>
     
     <script>
+        // 기존 함수들
         function addInput() {
             const linkInputs = document.getElementById('linkInputs');
             const currentCount = linkInputs.getElementsByClassName('link-input').length + 1;
@@ -531,17 +546,164 @@
             });
         }
 
+        // SSE 연결을 저장할 변수
+        let eventSource = null;
+        let currentTaskId = null;
+        
+        // 프로그레스바 애니메이션을 위한 변수
+        let currentProgress = 0;
+        let targetProgress = 0;
+        let progressAnimationId = null;
+        
+        // 부드러운 프로그레스바 애니메이션 처리 함수
+        function animateProgress() {
+            const progressBar = document.getElementById('conversionProgress');
+            
+            // 현재 값과 목표 값의 차이에 따라 증가 속도 계산 (차이가 클수록 빠르게 증가)
+            const diff = targetProgress - currentProgress;
+            
+            // 증가 값을 계산 (차이가 클수록 더 많이 증가, 최소 0.2)
+            const step = Math.max(0.2, diff * 0.05);
+            
+            if (diff > 0.1) { // 오차 범위 내에서 처리
+                currentProgress += step;
+                
+                // 목표값을 넘지 않도록 조정
+                if (currentProgress > targetProgress) {
+                    currentProgress = targetProgress;
+                }
+                
+                // 진행률 표시 업데이트
+                progressBar.value = currentProgress;
+                
+                // 애니메이션 계속 진행
+                progressAnimationId = requestAnimationFrame(animateProgress);
+            } else {
+                // 목표값에 도달한 경우 정확히 맞추고 애니메이션 종료
+                currentProgress = targetProgress;
+                progressBar.value = currentProgress;
+                progressAnimationId = null;
+            }
+        }
+        
+        // 프로그레스 목표 값 설정 함수
+        function setTargetProgress(newTarget) {
+            targetProgress = newTarget;
+            
+            // 아직 애니메이션이 실행 중이 아니라면 시작
+            if (progressAnimationId === null) {
+                progressAnimationId = requestAnimationFrame(animateProgress);
+            }
+        }
+        
+        // 프로그레스 초기화 함수 
+        function resetProgress() {
+            // 진행 중인 애니메이션 취소
+            if (progressAnimationId !== null) {
+                cancelAnimationFrame(progressAnimationId);
+                progressAnimationId = null;
+            }
+            
+            currentProgress = 0;
+            targetProgress = 0;
+            document.getElementById('conversionProgress').value = 0;
+        }
+        
+        // 상태 업데이트를 처리하는 함수
+        function handleStatusUpdate(data) {
+            const statusMessage = document.getElementById('statusMessage');
+            const loadingSection = document.getElementById('loadingSection');
+            const downloadSection = document.getElementById('downloadSection');
+            const errorSection = document.getElementById('errorSection');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // 프로그레스 바 애니메이션 목표값 설정
+            setTargetProgress(data.progress);
+            
+            // 상태 메시지 업데이트
+            statusMessage.textContent = data.message;
+            
+            // 상태에 따라 UI 업데이트
+            if (data.status === 'completed') {
+                // 변환이 완료된 경우
+                loadingSection.classList.add('hidden');
+                downloadSection.classList.remove('hidden');
+                errorSection.classList.add('hidden');
+                
+                // 다운로드 버튼 설정
+                setupDownloadButton(data.task_id);
+                
+                // SSE 연결 종료
+                closeEventSource();
+            } 
+            else if (data.status === 'failed') {
+                // 변환에 실패한 경우
+                loadingSection.classList.add('hidden');
+                downloadSection.classList.add('hidden');
+                errorSection.classList.remove('hidden');
+                errorMessage.textContent = data.error || "전자책 변환 중 오류가 발생했습니다.";
+                
+                // SSE 연결 종료
+                closeEventSource();
+            }
+        }
+        
+        // SSE 연결 종료 함수
+        function closeEventSource() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+        }
+        
+        // 다운로드 버튼 설정 함수
+        function setupDownloadButton(taskId) {
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.onclick = () => {
+                // 결과 파일 다운로드
+                window.location.href = `/api/v1/convert/result/${taskId}`;
+                
+                // 다운로드 시작 후 3초 후에 폼 다시 표시
+                setTimeout(() => {
+                    document.getElementById('linkForm').classList.remove('hidden');
+                    document.getElementById('downloadSection').classList.add('hidden');
+                }, 3000);
+            };
+        }
+        
+        // 재시도 버튼 이벤트 리스너
+        document.getElementById('retryButton').addEventListener('click', function() {
+            document.getElementById('errorSection').classList.add('hidden');
+            document.getElementById('linkForm').classList.remove('hidden');
+            // 프로그레스 초기화
+            resetProgress();
+        });
+
+        // 폼 제출 이벤트 리스너
         document.getElementById('linkForm').addEventListener('submit', function(event) {
             event.preventDefault();
             
             const form = this;
             const loadingSection = document.getElementById('loadingSection');
+            const errorSection = document.getElementById('errorSection');
             const downloadSection = document.getElementById('downloadSection');
             
-            // Hide form and show loading
+            // 이전 SSE 연결 종료
+            closeEventSource();
+            
+            // 프로그레스바 초기화
+            resetProgress();
+            
+            // 기존 UI 상태 초기화
+            document.getElementById('statusMessage').textContent = "전자책을 만드는 중입니다...";
+            
+            // 폼 숨기고 로딩 표시
             form.classList.add('hidden');
             loadingSection.classList.remove('hidden');
+            errorSection.classList.add('hidden');
+            downloadSection.classList.add('hidden');
 
+            // 요청 데이터 준비
             const bookTitle = form.querySelector('input[name="bookTitle"]').value;
             const format = form.querySelector('select[name="format"]').value.toLowerCase();
             const links = Array.from(form.querySelectorAll('input[name="links"]'))
@@ -556,11 +718,12 @@
             }
 
             const requestData = {
-                bookTitle,
-                format,
-                links
+                bookTitle: bookTitle,
+                format: format,
+                links: links
             };
 
+            // 변환 요청 시작 (변경된 엔드포인트로 요청)
             fetch('/api/v1/convert', {
                 method: 'POST',
                 headers: {
@@ -570,37 +733,81 @@
             })
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
-                return response.blob();
+                return response.json();
             })
-            .then(blob => {
-                // Hide loading and show download button
-                loadingSection.classList.add('hidden');
-                downloadSection.classList.remove('hidden');
-
-                // Setup download button
-                const downloadBtn = document.getElementById('downloadBtn');
-                downloadBtn.onclick = () => {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${bookTitle}.${requestData.format}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-
-                    // Show form after download starts
-                    form.classList.remove('hidden');
-                    downloadSection.classList.add('hidden');
-                };
+            .then(data => {
+                // 작업 ID 저장
+                currentTaskId = data.task_id;
+                
+                // 상태 업데이트 처리
+                handleStatusUpdate(data);
+                
+                // SSE 연결 설정
+                setupEventSource(currentTaskId);
             })
             .catch(error => {
                 console.error('Error:', error);
                 form.classList.remove('hidden');
                 loadingSection.classList.add('hidden');
-                alert('전자책 변환 중 오류가 발생했습니다. 다시 시도해주세요.');
+                alert('전자책 변환 요청 중 오류가 발생했습니다. 다시 시도해주세요.');
             });
         });
+        
+        // SSE 연결 설정 함수
+        function setupEventSource(taskId) {
+            // 이전 연결 종료
+            closeEventSource();
+            
+            // 새 SSE 연결 생성
+            eventSource = new EventSource(`/api/v1/convert/status/${taskId}/stream`);
+            
+            // 이벤트 리스너 설정
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleStatusUpdate(data);
+            };
+            
+            eventSource.onerror = function(error) {
+                console.error('SSE Error:', error);
+                
+                // 연결 오류 발생 시 폴백 처리
+                // SSE가 지원되지 않거나 연결이 끊긴 경우 폴링으로 전환
+                closeEventSource();
+                pollStatusFallback(taskId);
+            };
+        }
+        
+        // 폴백: 폴링을 통한 상태 확인
+        function pollStatusFallback(taskId) {
+            const checkStatus = () => {
+                fetch(`/api/v1/convert/status/${taskId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Status check failed');
+                    return response.json();
+                })
+                .then(data => {
+                    handleStatusUpdate(data);
+                    
+                    // 작업이 완료되지 않았다면 계속 폴링
+                    if (data.status !== 'completed' && data.status !== 'failed') {
+                        setTimeout(checkStatus, 2000); // 2초마다 폴링
+                    }
+                })
+                .catch(error => {
+                    console.error('Polling error:', error);
+                    
+                    // 오류 발생 시 한 번 더 시도 후 포기
+                    setTimeout(() => {
+                        document.getElementById('loadingSection').classList.add('hidden');
+                        document.getElementById('errorSection').classList.remove('hidden');
+                        document.getElementById('errorMessage').textContent = "연결 오류가 발생했습니다. 다시 시도해주세요.";
+                    }, 2000);
+                });
+            };
+            
+            // 최초 한번 바로 상태 확인 후 폴링 시작
+            checkStatus();
+        }
     </script>
 </body>
 </html>

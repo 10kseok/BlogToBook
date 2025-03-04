@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.v1.endpoints import converter
+from app.api.v1.exception_handlers import register_exception_handlers
 from app.core.config import settings
 from app.view import page
 
@@ -9,3 +10,5 @@ app = FastAPI(
 
 app.include_router(converter.router, prefix=settings.API_V1_STR, tags=["converter"])
 app.include_router(page.router, tags=["page"])
+
+register_exception_handlers(app)

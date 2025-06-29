@@ -9,8 +9,16 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     wget \
     xz-utils \
+    fontconfig \
     && rm -rf /var/lib/apt/lists/*
-    
+
+# 폰트 파일들만 먼저 복사
+COPY app/static/fonts/ /usr/share/fonts/truetype/custom/
+
+# 폰트 권한 설정 및 캐시 업데이트
+RUN chmod 644 /usr/share/fonts/truetype/custom/*.ttf && \
+    fc-cache -fv
+
 # PDF 변환을 위한 환경변수 설정
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 ENV QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-dev-shm-usage --disable-gpu"

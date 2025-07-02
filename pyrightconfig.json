@@ -1,0 +1,11 @@
+{
+    "include": [
+        "app"
+    ],
+    "strict": ["**"],
+    "typeCheckingMode": "strict",
+    "reportGeneralTypeIssues": "error",
+    "reportOptionalMemberAccess": "error",
+    "reportAbstractUsage": "error",
+    "reportIncompleteStub": "error"
+}

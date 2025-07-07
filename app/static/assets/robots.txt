@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /convert-page
+
+# API 엔드포인트 크롤링 금지 (사용자 인터페이스가 아닌 데이터 API)
+Disallow: /api/
+
+# 정적 파일 중 필요한 것만 허용
+Allow: /favicon.ico
+Allow: /robots.txt
+Allow: /sitemap.xml
+
+# 검색엔진 최적화를 위한 크롤링 지연 설정
+Crawl-delay: 1
+
+# 사이트맵 위치
+Sitemap: https://www.blog2book.store/sitemap.xml

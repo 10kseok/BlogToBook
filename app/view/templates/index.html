@@ -3,7 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog to Book - 블로그를 전자책으로</title>
+    
+    <!-- SEO 기본 메타 태그 -->
+    <title>Blog To Book - 블로그를 전자책으로 변환하는 무료 도구</title>
+    <meta name="description" content="블로그 포스트를 EPUB, PDF 전자책으로 변환하는 무료 온라인 도구. 로그인 없이 몇 번의 클릭으로 전자책을 만들어보세요. 자동 목차 생성과 이미지 다운로드 지원.">
+    <meta name="keywords" content="블로그, 전자책, EPUB, PDF, 변환, 무료, 온라인, 도구, 목차, 자동생성">
+    <meta name="author" content="Blog To Book">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.blog2book.store/">
+    
+    <!-- Open Graph 태그 (Facebook, LinkedIn 등) -->
+    <meta property="og:title" content="Blog To Book - 블로그를 전자책으로 변환">
+    <meta property="og:description" content="블로그 포스트를 EPUB, PDF 전자책으로 변환하는 무료 온라인 도구. 로그인 없이 쉽게 전자책을 만들어보세요.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.blog2book.store/">
+    <meta property="og:image" content="https://www.blog2book.store/favicon.ico">
+    <meta property="og:image:alt" content="Blog To Book - 블로그를 전자책으로 변환하는 서비스">
+    <meta property="og:site_name" content="Blog To Book">
+    <meta property="og:locale" content="ko_KR">
+    
+    <!-- Twitter Card 태그 -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Blog To Book - 블로그를 전자책으로 변환">
+    <meta name="twitter:description" content="블로그 포스트를 EPUB, PDF 전자책으로 변환하는 무료 온라인 도구">
+    <meta name="twitter:image" content="https://www.blog2book.store/favicon.ico">
+    
+    <!-- 추가 SEO 메타 태그 -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#6366F1">
+    
+    <!-- 파비콘 및 아이콘 -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico">
+    
+    <!-- 외부 리소스 링크 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,6 +44,75 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    
+    <!-- 구조화 데이터 (Schema.org) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Blog To Book",
+      "description": "블로그 포스트를 EPUB, PDF 전자책으로 변환하는 무료 온라인 도구",
+      "url": "https://www.blog2book.store/",
+      "applicationCategory": "ProductivityApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "KRW"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Blog To Book",
+        "email": "koesnam.dev@gmail.com"
+      },
+      "featureList": [
+        "블로그 포스트를 EPUB 형식으로 변환",
+        "블로그 포스트를 PDF 형식으로 변환",
+        "자동 목차 생성",
+        "이미지 자동 다운로드 및 포함",
+        "로그인 없이 사용 가능"
+      ],
+      "softwareRequirements": "웹 브라우저"
+    }
+    </script>
+    
+    <!-- 추가 구조화 데이터 - 서비스 정보 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Blog To Book 전자책 변환 서비스",
+      "description": "블로그 포스트를 전자책으로 변환하는 온라인 서비스",
+      "provider": {
+        "@type": "Organization",
+        "name": "Blog To Book"
+      },
+      "areaServed": "KR",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "전자책 변환 서비스",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "EPUB 변환",
+              "description": "블로그 포스트를 EPUB 형식으로 변환"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "PDF 변환",
+              "description": "블로그 포스트를 PDF 형식으로 변환"
+            }
+          }
+        ]
+      }
+    }
+    </script>
+    
     <style>
         :root {
             --primary: #6366F1;
@@ -205,10 +307,10 @@
 </head>
 <body>
     <!-- New Navbar -->
-    <nav class="navbar is-fixed-top">
+    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
         <div class="container">
             <div class="navbar-brand">
-                <a href="/" class="navbar-item">
+                <a href="/" class="navbar-item" aria-label="Blog To Book 홈페이지">
                     <h1 class="title">B2B</h1>
                 </a>
             </div>
@@ -225,9 +327,9 @@
                 <h2 class="subtitle is-4 mb-6">
                     몇 번의 클릭으로 블로그 포스트를 전자책으로 변환
                 </h2>
-                <a href="#convert" class="button is-primary is-large">
+                <a href="#convert" class="button is-primary is-large" aria-label="전자책 변환 시작하기">
                     <span class="icon">
-                        <i class="fas fa-bolt"></i>  <!-- book-reader에서 bolt(번개)로 변경 -->
+                        <i class="fas fa-bolt" aria-hidden="true"></i>
                     </span>
                     <span>로그인 없이 바로 시작</span>
                 </a>
@@ -241,31 +343,31 @@
             <h2 class="title is-2 has-text-centered mb-6">주요 기능</h2>
             <div class="columns is-multiline">
                 <div class="column is-4">
-                    <div class="feature-card has-text-centered">
+                    <article class="feature-card has-text-centered">
                         <span class="icon feature-icon">
-                            <i class="fas fa-book"></i>  <!-- fa-file-pdf에서 fa-book으로 변경 -->
+                            <i class="fas fa-book" aria-hidden="true"></i>
                         </span>
                         <h3 class="title is-4">EPUB/PDF 변환</h3>
                         <p>게시글을 EPUB과 PDF 형식으로 손쉽게 변환하세요</p>
-                    </div>
+                    </article>
                 </div>
                 <div class="column is-4">
-                    <div class="feature-card has-text-centered">
+                    <article class="feature-card has-text-centered">
                         <span class="icon feature-icon">
-                            <i class="fas fa-list"></i>
+                            <i class="fas fa-list" aria-hidden="true"></i>
                         </span>
                         <h3 class="title is-4">자동 목차 생성</h3>
                         <p>글의 내용을 분석하여 자동으로 목차를 생성합니다</p>
-                    </div>
+                    </article>
                 </div>
                 <div class="column is-4">
-                    <div class="feature-card has-text-centered">
+                    <article class="feature-card has-text-centered">
                         <span class="icon feature-icon">
-                            <i class="fas fa-image"></i>
+                            <i class="fas fa-image" aria-hidden="true"></i>
                         </span>
                         <h3 class="title is-4">커버 이미지 생성(예정)</h3>
                         <p>AI가 콘텐츠에 맞는 표지 이미지를 자동으로 생성합니다</p>
-                    </div>
+                    </article>
                 </div>
             </div>
         </div>
@@ -277,32 +379,32 @@
             <h2 class="title is-2 has-text-centered mb-6">사용 방법</h2>
             <div class="columns is-multiline">
                 <div class="column is-6 is-offset-3">
-                    <div class="content">
-                        <div class="mb-5">
+                    <ol class="content">
+                        <li class="mb-5">
                             <div class="step-wrapper">
                                 <span class="step-number">1</span>
                                 <span>원하는 전자책 포맷을 선택하세요</span>
                             </div>
-                        </div>
-                        <div class="mb-5">
+                        </li>
+                        <li class="mb-5">
                             <div class="step-wrapper">
                                 <span class="step-number">2</span>
                                 <span>제목과 블로그 포스트 URL을 입력하세요</span>
                             </div>
-                        </div>
-                        <div class="mb-5">
+                        </li>
+                        <li class="mb-5">
                             <div class="step-wrapper">
                                 <span class="step-number">3</span>
                                 <span>'전자책 만들기' 버튼을 클릭하세요</span>
                             </div>
-                        </div>
-                        <div class="mb-5">
+                        </li>
+                        <li class="mb-5">
                             <div class="step-wrapper">
                                 <span class="step-number">4</span>
                                 <span>변환된 전자책을 다운로드하세요</span>
                             </div>
-                        </div>
-                    </div>
+                        </li>
+                    </ol>
                 </div>
             </div>
         </div>
@@ -311,9 +413,9 @@
     <!-- Convert Section -->
     <section id="convert" class="section">
         <div class="container has-text-centered">
-            <a href="/convert" class="button is-primary is-large">
+            <a href="/convert-page" class="button is-primary is-large" aria-label="전자책 변환 페이지로 이동">
                 <span class="icon">
-                    <i class="fas fa-book-reader"></i>
+                    <i class="fas fa-book-reader" aria-hidden="true"></i>
                 </span>
                 <span>지금 시작하기</span>
             </a>
@@ -322,7 +424,7 @@
 
     <footer class="footer">
         <div class="container has-text-centered">
-            <p>Contact: koesnam.dev@gmail.com</p>
+            <p>Contact: <a href="mailto:koesnam.dev@gmail.com">koesnam.dev@gmail.com</a></p>
         </div>
     </footer>
 </body>

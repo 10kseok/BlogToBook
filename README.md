@@ -4,7 +4,7 @@
 
 ## 데모
 
-웹사이트에서 바로 사용해보세요: [BlogToBook](http://localhost:8000)
+웹사이트에서 바로 사용해보세요: [BlogToBook](https://www.blog2book.store)
 
 ## 특징
 
@@ -19,42 +19,6 @@
 - Brunch (브런치)
 - Tistory (티스토리)
 - Jekyll 기반 블로그
-- 일반 웹페이지
-
-## 빠른 시작
-
-### 필요 사항
-
-- Python 3.11+
-- Poetry (의존성 관리)
-- Dokcer (선택 사항)
-
-### 로컬 환경 실행
-
-#### 설치
-```bash
-git clone <repository-url>
-cd BlogToBook
-
-# 의존성 설치
-poetry install
-poetry shell
-```
-
-#### 실행
-
-```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-브라우저에서 `http://localhost:8000` 접속
-
-#### Docker 환경 실행
-
-```bash
-docker build -t blogtobook .
-docker run -p 8000:8000 blogtobook
-```
 
 ## 사용법
 
@@ -63,6 +27,88 @@ docker run -p 8000:8000 blogtobook
 3. 블로그 포스트 URL 입력
 4. '전자책 만들기' 클릭
 5. 변환 완료 후 다운로드
+
+## 전자책 변환 프로세스
+
+```mermaid
+flowchart LR
+    A[📝 사용자 입력<br/>URL & 제목] --> B[🔍 콘텐츠 추출<br/>웹페이지 분석]
+    B --> C[🛠️ HTML 전처리<br/>태그 정리 & 구조화]
+    C --> D[🖼️ 이미지 처리<br/>다운로드 & 최적화]
+    D --> E[📖 전자책 생성<br/>EPUB/PDF 변환]
+    E --> F[📥 다운로드<br/>완성된 전자책]
+    
+    style A fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000
+    style B fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px,color:#000
+    style C fill:#e8f5e8,stroke:#388e3c,stroke-width:3px,color:#000
+    style D fill:#fff3e0,stroke:#f57c00,stroke-width:3px,color:#000
+    style E fill:#fce4ec,stroke:#c2185b,stroke-width:3px,color:#000
+    style F fill:#e0f2f1,stroke:#00695c,stroke-width:3px,color:#000
+```
+
+### 🔧 기술적 구현 흐름
+
+```mermaid
+flowchart TD
+    subgraph "1️⃣ 웹 콘텐츠 추출"
+        A1[Trafilatura<br/>라이브러리]
+        A2[본문 텍스트 추출]
+        A3[불필요한 요소 제거]
+        A1 --> A2 --> A3
+    end
+    
+    subgraph "2️⃣ HTML 전처리"
+        B1[BeautifulSoup4<br/>파싱]
+        B2[태그 구조 정리]
+        B3[코드 블록 처리]
+        B1 --> B2 --> B3
+    end
+    
+    subgraph "3️⃣ 이미지 처리"
+        C1[이미지 URL 추출]
+        C2[비동기 다운로드<br/>aiohttp]
+        C3[로컬 경로로 변경]
+        C1 --> C2 --> C3
+    end
+    
+    subgraph "4️⃣ 전자책 변환"
+        D1[Calibre<br/>ebook-convert]
+        D2[CSS 스타일 적용]
+        D3[최종 파일 생성]
+        D1 --> D2 --> D3
+    end
+    
+    A3 --> B1
+    B3 --> C1
+    C3 --> D1
+    
+    style A1 fill:#e3f2fd,color:#000
+    style B1 fill:#f3e5f5,color:#000
+    style C2 fill:#fff3e0,color:#000
+    style D1 fill:#fce4ec,color:#000
+```
+
+### 변환 과정 상세
+
+1. **콘텐츠 추출**
+   - Trafilatura를 사용하여 웹페이지에서 본문 추출
+   - 광고, 내비게이션 등 불필요한 요소 제거
+   - HTML 형식으로 구조화된 콘텐츠 생성
+
+2. **이미지 처리**
+   - 모든 이미지를 비동기적으로 다운로드
+   - 이미지 파일을 로컬에 저장
+   - HTML 내 이미지 링크를 로컬 경로로 변경
+
+3. **문서 구조화**
+   - 제목 구조 분석 및 목차 생성
+   - 코드 블록 및 인용문 스타일링
+   - 폰트 및 CSS 스타일 적용
+
+4. **전자책 변환**
+   - Calibre를 사용하여 HTML을 전자책 포맷으로 변환
+   - 메타데이터 추가 (제목, 저자 등)
+   - 최종 파일 생성
 
 ## 기술 스택
 

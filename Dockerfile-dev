@@ -1,0 +1,12 @@
+FROM python:3.13-slim
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# uv 설치
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 작업 디렉토리 설정
+WORKDIR /app
